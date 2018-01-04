@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/SieShow/Ponto-Inteligente.svg?branch=master)](https://travis-ci.org/SieShow/Ponto-Inteligente)
+[![Build Status](https://travis-ci.org/SieShow/ponto-inteligente.svg?branch=master)](https://travis-ci.org/SieShow/ponto-inteligente)
 
 # Ponto-Inteligente
 
