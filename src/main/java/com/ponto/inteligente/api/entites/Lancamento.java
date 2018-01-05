@@ -123,9 +123,9 @@ public class Lancamento implements Serializable {
 
 	@PrePersist
 	public void prePersist() {
-		final Date data = new Date();
-		this.dataCriacao = data;
-		this.dataAtualizacao = data;
+		final Date dt = new Date();
+		this.dataCriacao = dt;
+		this.dataAtualizacao = dt;
 	}
 
 	@Override
