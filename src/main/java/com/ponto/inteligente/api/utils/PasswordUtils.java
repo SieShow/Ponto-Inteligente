@@ -13,7 +13,7 @@ public class PasswordUtils {
 	 * @param senha
 	 * @return
 	 */
-	public String gerarBCrypt(String senha) {
+	public static String gerarBCrypt(String senha) {
 		if(senha == null) {
 			return senha;
 		}
