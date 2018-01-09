@@ -15,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -44,34 +43,37 @@ public class LancamentoController {
 
 	private static final Logger log = LoggerFactory.getLogger(LancamentoController.class);
 	private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	
+
 	@Autowired
-	private LancamentoService lancamentoService;	
+	private LancamentoService lancamentoService;
+
 	@Autowired
 	private FuncionarioService funcionarioService;
+
 	@Value("${paginacao.qtd_por_pagina}")
 	private int qtdPorPagina;
-	
+
 	public LancamentoController() {
 		//Não implementado
 	}
+
 	@GetMapping(value = "/funcionario/{id}")
 	public ResponseEntity<Response<Page<LancamentoDTO>>> listaPorFuncionarioId(@PathVariable("id") Long id,
 			@RequestParam(value = "pag", defaultValue = "0") int pag,
 			@RequestParam(value = "ord", defaultValue = "id") String ord,
 			@RequestParam(value = "dir", defaultValue="DESC") String dir){
-		
+
 		log.info("Buscando lançamentos por id do usuário " + id);
 		Response<Page<LancamentoDTO>> response = new Response<>();
-		
+
 		PageRequest pageRequest = new PageRequest(pag, this.qtdPorPagina, Direction.valueOf(dir), ord);
 		Page<Lancamento> lancamentos = this.lancamentoService.buscarPorFuncionarioId(id, pageRequest);
 		Page<LancamentoDTO> lancamentodto = lancamentos.map(lancamento -> this.converterLancamentoDto(lancamento));
 		response.setData(lancamentodto);
-		
+
 		return ResponseEntity.ok(response);
 	}
-	
+
 	/**
 	 * Lista um único lancamento pelo id informado
 	 * @param id
@@ -79,11 +81,11 @@ public class LancamentoController {
 	 */
 	@GetMapping("/{id}")
 	public ResponseEntity<Response<LancamentoDTO>> listarPorId(@PathVariable("id") Long id){
-		
+
 		log.info("Buscando lancamento por id: " + id);
 		Response<LancamentoDTO> response = new Response<>();
 		Optional<Lancamento> lancamento = this.lancamentoService.buscarPorId(id);
-		
+
 		if(!lancamento.isPresent()) {
 			log.info("Lançamento não encontrado para o ID: " + id);
 			response.getErrors().add("Lancamento não encontrado para o ID: " + id);
@@ -94,38 +96,84 @@ public class LancamentoController {
 			return ResponseEntity.ok(response);
 		}
 	}
-	
+
 	@PostMapping
-	public ResponseEntity<Response<LancamentoDTO>> adicionar(@PathVariable @RequestBody LancamentoDTO lancamentodto, BindingResult result)
+	public ResponseEntity<Response<LancamentoDTO>> adicionar(@RequestBody LancamentoDTO lancamentodto, BindingResult result)
 			throws ParseException{
-		
+
 		log.info("Adicionando lancamento" + lancamentodto.toString());
 		Response<LancamentoDTO> response = new Response<>();
 		this.validarFuncionario(lancamentodto, result);
 		Lancamento lancamento = this.converterDtoParaLancamento(lancamentodto, result);
-		
+
 		if(result.hasErrors()) {
 			log.error("Erro validando lancamento: ", result.getAllErrors());
 			result.getAllErrors().forEach(error -> response.getErrors().add(error.getDefaultMessage()));
 			return ResponseEntity.badRequest().body(response);
 		}
-		
+
 		lancamento = this.lancamentoService.persistir(lancamento);
 		response.setData(this.converterLancamentoDto(lancamento));
 		return ResponseEntity.ok(response);
 	}
-	
+
+	/**
+	 * Atualiza as informações do lancamento passando um id como parâmetro
+	 * @param id
+	 * @param lancamentodto
+	 * @param result
+	 * @return
+	 * @throws ParseException
+	 */
 	@PutMapping("/{id}")
 	public ResponseEntity<Response<LancamentoDTO>> atualizar(@PathVariable("id") Long id, @Valid @RequestBody LancamentoDTO lancamentodto,
-			BindingResult result){
+			BindingResult result) throws ParseException{
 		log.info("Atualizando lancamentos: " + lancamentodto.toString());
-		Response<LancamentoDTO> lancamento = new Response<>();
-		
+		Response<LancamentoDTO> response = new Response<>();
+
 		this.validarFuncionario(lancamentodto, result);
 		lancamentodto.setId(Optional.of(id));
-		Lancamento lancamento = this.converterLancamentoDto(lancamento);
+		Lancamento lancamento = this.converterDtoParaLancamento(lancamentodto, result);
+
+		if(result.hasErrors()) {
+			log.error("Erro validando lançamento {}", result.getAllErrors());
+			result.getAllErrors().forEach(erro -> response.getErrors().add(erro.getDefaultMessage()));
+			return ResponseEntity.badRequest().body(response);
+		}
+		else {
+			lancamento = this.lancamentoService.persistir(lancamento);
+			response.setData(this.converterLancamentoDto(lancamento));
+			return ResponseEntity.ok(response);
+		}
 	}
-	
+
+	/**
+	 * Deleta um lancamento passando o id de um usuário como parâmetro
+	 * @param id
+	 * @return
+	 */
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Response<String>> remover(@PathVariable("id") Long id){
+		log.info("Removendo lancamento de id: {} ", id);
+		Response<String> response = new Response<>();
+		Optional<Lancamento> lancamento = this.lancamentoService.buscarPorId(id);
+
+		if(!lancamento.isPresent()) {
+			log.info("Lancamento não existe");
+			response.getErrors().add("Lancamento não existe");
+			return ResponseEntity.badRequest().body(response);
+		}
+		else {
+			this.lancamentoService.remover(id);
+			return ResponseEntity.ok(response);
+		}
+	}
+
+	/**
+	 * Valida as informações do usuário
+	 * @param lancamentodto
+	 * @param result
+	 */
 	private void validarFuncionario(LancamentoDTO lancamentodto, BindingResult result) {
 		if(lancamentodto.getFuncionarioId() == null) {
 			result.addError(new ObjectError("funcionario", "Funcionário não informado"));
@@ -139,7 +187,7 @@ public class LancamentoController {
 			}
 		}
 	}
-	
+
 	/**
 	 * Converte um lancamento para LancamentoDTO
 	 * @param lancamento
@@ -153,10 +201,10 @@ public class LancamentoController {
 		lancamentodto.setDescricao(lancamento.getDescricao());
 		lancamentodto.setLocalizacao(lancamento.getLocalizacao());
 		lancamentodto.setFuncionarioId(lancamento.getFuncionario().getId());
-		
-		return lancamentodto;		
+
+		return lancamentodto;
 	}
-	
+
 	private Lancamento converterDtoParaLancamento(LancamentoDTO lancamentoDto, BindingResult result) throws ParseException {
 		Lancamento lancamento = new Lancamento();
 
@@ -184,5 +232,5 @@ public class LancamentoController {
 
 		return lancamento;
 	}
-	
+
 }
