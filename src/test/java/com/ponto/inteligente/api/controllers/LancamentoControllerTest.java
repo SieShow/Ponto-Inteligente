@@ -16,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -54,6 +55,7 @@ public class LancamentoControllerTest {
 	private final SimpleDateFormat format = new SimpleDateFormat("yyy-MM-dd HH:mm:ss");
 
 	@Test
+	@WithMockUser
 	public void testCadastrarLancamento() throws JsonProcessingException, Exception {
 		Lancamento lancamento = this.obterDadosLancamento();
 		BDDMockito.given(this.funcionarioService.buscarPorId(Mockito.anyLong()))
@@ -62,13 +64,15 @@ public class LancamentoControllerTest {
 
 		mvc.perform(MockMvcRequestBuilders.post(URL_BASE).content(this.obterJsonRequisisaoPost())
 				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-				.andExpect(jsonPath("$.data.id").value(ID_LANCAMENTO)).andExpect(jsonPath("$data.tipo").value(TIPO))
+				.andExpect(jsonPath("$.data.id").value(ID_LANCAMENTO))
+				.andExpect(jsonPath("$data.tipo").value(TIPO))
 				.andExpect(jsonPath("$.data.data").value(this.format.format(DATA)))
 				.andExpect(jsonPath("$.data.funcionarioId").value(ID_FUNCIONARIO))
 				.andExpect(jsonPath("$.errors").isEmpty());
 	}
 
 	@Test
+	@WithMockUser
 	public void testarCadastrarLancamentoFuncionarioIdInvalido() throws JsonProcessingException, Exception {
 		BDDMockito.given(this.funcionarioService.buscarPorId(Mockito.anyLong())).willReturn(Optional.empty());
 
@@ -80,6 +84,7 @@ public class LancamentoControllerTest {
 	}
 
 	@Test
+	@WithMockUser
 	public void testRemoverLancamento() throws Exception {
 		BDDMockito.given(this.lancamentoService.buscarPorId(Mockito.anyLong()))
 				.willReturn(Optional.of(new Lancamento()));
