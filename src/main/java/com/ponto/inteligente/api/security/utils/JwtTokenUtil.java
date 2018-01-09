@@ -18,10 +18,10 @@ public class JwtTokenUtil {
 	private static final String CLAIM_KEY_ROLE = "role"; // Referente ao perfil
 	private static final String CLAIM_KEY_CREATED = "created"; // Definição de quando o usuário foi criado
 
-	@Value("{$jwt.secret}")
+	@Value("${jwt.secret}")
 	private String secret;
 
-	@Value("{$jwt.expiration}")
+	@Value("${jwt.expiration}")
 	private Long expiration;
 
 	public JwtTokenUtil() {
