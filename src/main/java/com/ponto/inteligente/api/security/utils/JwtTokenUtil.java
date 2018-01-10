@@ -14,9 +14,10 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Component
 public class JwtTokenUtil {
 
-	private static final String CLAIM_KEY_USERNAME = "sub"; // Refente ao email do usuário
-	private static final String CLAIM_KEY_ROLE = "role"; // Referente ao perfil
-	private static final String CLAIM_KEY_CREATED = "created"; // Definição de quando o usuário foi criado
+	static final String CLAIM_KEY_USERNAME = "sub";
+	static final String CLAIM_KEY_ROLE = "role";
+	static final String CLAIM_KEY_AUDIENCE = "audience";
+	static final String CLAIM_KEY_CREATED = "created";
 
 	@Value("${jwt.secret}")
 	private String secret;
@@ -24,127 +25,131 @@ public class JwtTokenUtil {
 	@Value("${jwt.expiration}")
 	private Long expiration;
 
-	public JwtTokenUtil() {
-		// Não implementado
-	}
-
 	/**
-	 * Obtém o username(email) contidos no token JWT
+	 * Obtém o username (email) contido no token JWT.
 	 *
 	 * @param token
-	 * @return
+	 * @return String
 	 */
 	public String getUsernameFromToken(String token) {
+		String username;
 		try {
-			Claims claims = this.getClaimsFromToken(token);
-			return claims.getSubject();
+			Claims claims = getClaimsFromToken(token);
+			username = claims.getSubject();
 		} catch (Exception e) {
-			return null;
+			username = null;
 		}
+		return username;
 	}
 
 	/**
-	 * Obtém a data de expiração de um token JWT
+	 * Retorna a data de expiração de um token JWT.
 	 *
 	 * @param token
-	 * @return
+	 * @return Date
 	 */
 	public Date getExpirationDateFromToken(String token) {
+		Date expiration;
 		try {
-			Claims claims = this.getClaimsFromToken(token);
-			return claims.getExpiration();
+			Claims claims = getClaimsFromToken(token);
+			expiration = claims.getExpiration();
 		} catch (Exception e) {
-			return null;
+			expiration = null;
 		}
+		return expiration;
 	}
 
 	/**
-	 * Cria um novo token(refresh)
+	 * Cria um novo token (refresh).
 	 *
 	 * @param token
-	 * @return
+	 * @return String
 	 */
 	public String refreshToken(String token) {
+		String refreshedToken;
 		try {
-			Claims claims = this.getClaimsFromToken(token);
+			Claims claims = getClaimsFromToken(token);
 			claims.put(CLAIM_KEY_CREATED, new Date());
-			return this.gerarToken(claims);
+			refreshedToken = gerarToken(claims);
 		} catch (Exception e) {
-			return null;
+			refreshedToken = null;
 		}
+		return refreshedToken;
 	}
 
 	/**
-	 * Verifica e retorna se um token JWT é válido
+	 * Verifica e retorna se um token JWT é válido.
 	 *
 	 * @param token
-	 * @return
+	 * @return boolean
 	 */
 	public boolean tokenValido(String token) {
-		return !this.tokenExpirado(token);
+		return !tokenExpirado(token);
 	}
 
 	/**
-	 * Retorna um novo token JWT com base nos dados do usuário
+	 * Retorna um novo token JWT com base nos dados do usuários.
 	 *
-	 * @param userdetails
-	 * @return
+	 * @param userDetails
+	 * @return String
 	 */
-	public String obterToken(UserDetails userdetails) {
+	public String obterToken(UserDetails userDetails) {
 		Map<String, Object> claims = new HashMap<>();
-		claims.put(CLAIM_KEY_USERNAME, userdetails.getUsername());
-		userdetails.getAuthorities().forEach(authority -> claims.put(CLAIM_KEY_ROLE, authority.getAuthority()));
+		claims.put(CLAIM_KEY_USERNAME, userDetails.getUsername());
+		userDetails.getAuthorities().forEach(authority -> claims.put(CLAIM_KEY_ROLE, authority.getAuthority()));
 		claims.put(CLAIM_KEY_CREATED, new Date());
 
-		return this.gerarToken(claims);
+		return gerarToken(claims);
 	}
 
 	/**
-	 * Retorna a data de expiração com base na data atual
+	 * Realiza o parse do token JWT para extrair as informações contidas no
+	 * corpo dele.
 	 *
-	 * @return
+	 * @param token
+	 * @return Claims
+	 */
+	private Claims getClaimsFromToken(String token) {
+		Claims claims;
+		try {
+			claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+		} catch (Exception e) {
+			claims = null;
+		}
+		return claims;
+	}
+
+	/**
+	 * Retorna a data de expiração com base na data atual.
+	 *
+	 * @return Date
 	 */
 	private Date gerarDataExpiracao() {
 		return new Date(System.currentTimeMillis() + expiration * 1000);
 	}
 
 	/**
-	 * Verifica se um token JWT está expirado
+	 * Verifica se um token JTW está expirado.
 	 *
 	 * @param token
-	 * @return
+	 * @return boolean
 	 */
 	private boolean tokenExpirado(String token) {
-		Date data = this.getExpirationDateFromToken(token);
-		if (data == null) {
+		Date dataExpiracao = this.getExpirationDateFromToken(token);
+		if (dataExpiracao == null) {
 			return false;
-		} else {
-			return data.before(new Date());
 		}
+		return dataExpiracao.before(new Date());
 	}
 
 	/**
-	 * Gera um novo token contendo os dados (claims) fornecidos
+	 * Gera um novo token JWT contendo os dados (claims) fornecidos.
+	 *
 	 * @param claims
-	 * @return
+	 * @return String
 	 */
 	private String gerarToken(Map<String, Object> claims) {
-		return Jwts.builder().setClaims(claims).setExpiration(this.gerarDataExpiracao())
+		return Jwts.builder().setClaims(claims).setExpiration(gerarDataExpiracao())
 				.signWith(SignatureAlgorithm.HS512, secret).compact();
-	}
-
-	/**
-	 * Realiza o parse do Token JWT para extrair as informações contidas no corpo
-	 * dele.
-	 *
-	 * @param token
-	 * @return
-	 */
-	public Claims getClaimsFromToken(String token) {
-		try {
-			return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
-		} catch (Exception e) {
-			return null;
-		}
 	}
 }

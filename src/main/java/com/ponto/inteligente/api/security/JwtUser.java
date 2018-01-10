@@ -7,19 +7,27 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public class JwtUser implements UserDetails {
 
-	private static final long serialVersionUID = 8770126600634598334L;
+	private static final long serialVersionUID = -268046329085485932L;
 
 	private Long id;
 	private String username;
 	private String password;
 	private Collection<? extends GrantedAuthority> authorities;
 
-
 	public JwtUser(Long id, String username, String password, Collection<? extends GrantedAuthority> authorities) {
 		this.id = id;
 		this.username = username;
 		this.password = password;
 		this.authorities = authorities;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	@Override
+	public String getUsername() {
+		return username;
 	}
 
 	@Override
@@ -38,41 +46,17 @@ public class JwtUser implements UserDetails {
 	}
 
 	@Override
-	public boolean isEnabled() {
-		return true;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	@Override
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	@Override
 	public String getPassword() {
 		return password;
 	}
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
+	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return authorities;
 	}
 
-	public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
-		this.authorities = authorities;
+	@Override
+	public boolean isEnabled() {
+		return true;
 	}
 }

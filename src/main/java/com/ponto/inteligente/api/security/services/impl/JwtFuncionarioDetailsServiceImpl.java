@@ -20,10 +20,14 @@ public class JwtFuncionarioDetailsServiceImpl implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Optional<Funcionario> funcionario = this.funcionarioService.buscarPorEmail(username);
-		if(funcionario.isPresent()) {
+		Optional<Funcionario> funcionario = funcionarioService.buscarPorEmail(username);
+
+		if (funcionario.isPresent()) {
 			return JwtUserFactory.create(funcionario.get());
 		}
-		return null;
+
+		throw new UsernameNotFoundException("Email não encontrado.");
 	}
+
 }
+

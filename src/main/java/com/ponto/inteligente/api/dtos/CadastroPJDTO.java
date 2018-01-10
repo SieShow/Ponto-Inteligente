@@ -7,29 +7,34 @@ import org.hibernate.validator.constraints.br.CNPJ;
 import org.hibernate.validator.constraints.br.CPF;
 
 public class CadastroPJDTO {
-	
+
 	private Long id;
 	@NotEmpty(message = "Nome não pode ser vazio")
 	@Length(min = 3, max = 200, message = "Nome deve conter entre 3 e 200 caracteres.")
-	private String nome;	
+	private String nome;
+
 	@NotEmpty(message = "Email não pode ser vazio")
 	@Length(min = 5, max = 200, message ="Email deve conter entre 5 e 200 caracteres")
 	@Email(message = "Email inválido")
 	private String email;
+
 	@NotEmpty(message = "Senha não pode ser vazia")
 	private String senha;
+
 	@NotEmpty(message = "Cpf não pode ser vazio")
 	@CPF(message = "CPF inválido")
 	private String cpf;
+
 	@NotEmpty(message = "Razão social não pode ser vazio")
 	@Length(min = 5, max = 200, message = "Razão social deve conter entre 5 e 200 caracteres")
 	private String razaoSocial;
+
 	@NotEmpty(message = "CNPJ não pode ser vazio")
 	@CNPJ(message = "CPNJ inválido")
 	private String cnpj;
-	
+
 	public CadastroPJDTO() {
-		
+
 	}
 
 	public Long getId() {
@@ -39,7 +44,7 @@ public class CadastroPJDTO {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	
+
 	public String getNome() {
 		return nome;
 	}
@@ -87,10 +92,10 @@ public class CadastroPJDTO {
 	public void setCnpj(String cnpj) {
 		this.cnpj = cnpj;
 	}
-	
+
 	@Override
 	public String toString() {
-		return "CadastroPJDTO [ id = " + this.id + " nome = " + this.nome + " email = " + this.email + " senha = " 
+		return "CadastroPJDTO [ id = " + this.id + " nome = " + this.nome + " email = " + this.email + " senha = "
 	+ this.senha + " cpf = " + this.cpf + " razaoSocial = " + this.razaoSocial + " cnjp = " + this.cnpj + "]";
 	}
 }
