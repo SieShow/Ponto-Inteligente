@@ -27,7 +27,7 @@ import com.ponto.inteligente.api.services.EmpresaService;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("teste")
+@ActiveProfiles("test")
 public class EmpresaControllerTest {
 
 	@Autowired
