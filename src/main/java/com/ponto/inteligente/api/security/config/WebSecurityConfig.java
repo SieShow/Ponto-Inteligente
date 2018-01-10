@@ -48,7 +48,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		httpSecurity.csrf().disable().exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
 				.antMatchers("/auth/**", "/api/cadastrar-pj", "/v2/api-docs","/swagger-resources/**",
-						"/configuration/security", "/swagger-ui.html", "/webjars/**").permitAll()
+						"/configuration/security", "/swagger-ui.html", "api/cadastrar-pj/teste", "/webjars/**").permitAll()
 				.anyRequest().authenticated();
 		httpSecurity.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
 		httpSecurity.headers().cacheControl();
