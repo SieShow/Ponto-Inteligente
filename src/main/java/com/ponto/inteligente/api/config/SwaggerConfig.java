@@ -31,7 +31,7 @@ public class SwaggerConfig {
 	private UserDetailsService userService;
 
 	@Bean
-	private Docket api() {
+	public Docket api() {
 		return new Docket(DocumentationType.SWAGGER_2).select()
 				.apis(RequestHandlerSelectors.basePackage("com.ponto.inteligente.api.controllers"))
 				.paths(PathSelectors.any()).build()
@@ -44,8 +44,9 @@ public class SwaggerConfig {
 				.build();
 	}
 
+	
 	@Bean
-	private SecurityConfiguration security() {
+	public SecurityConfiguration security() {
 		String token;
 		try {
 			UserDetails userDetails = this.userService.loadUserByUsername("admin@calangus.com");
@@ -55,8 +56,8 @@ public class SwaggerConfig {
 			token = "";
 
 		}
-
 		return new SecurityConfiguration(null, null, null, null, "Bearer " + token,
 				ApiKeyVehicle.HEADER, "Authorization", ",");
 	}
+	
 }
