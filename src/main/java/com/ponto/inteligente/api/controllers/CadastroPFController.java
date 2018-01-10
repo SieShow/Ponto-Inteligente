@@ -44,7 +44,7 @@ public class CadastroPFController {
 	@PostMapping
 	public ResponseEntity<Response<CadastroPFDTO>> cadastrar(@Valid @RequestBody CadastroPFDTO cadastropf, BindingResult result){
 
-		log.info("Cadastrando pessoa física" + cadastropf.toString());
+		log.info("Cadastrando pessoa física {0}", cadastropf.toString());
 		Response<CadastroPFDTO> response = new Response<>();
 		this.validarDadosExistentes(cadastropf, result);
 

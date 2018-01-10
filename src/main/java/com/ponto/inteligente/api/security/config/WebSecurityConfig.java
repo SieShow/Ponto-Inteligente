@@ -25,32 +25,32 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private JwtAuthenticationEntryPoint unauthorizedHandler;
 	
+
 	@Autowired
 	private UserDetailsService userDetailsService;
-	
+
 	@Autowired
-	public void configureAuthentication(AuthenticationManagerBuilder authentication) throws Exception {
-		authentication.userDetailsService(this.userDetailsService).passwordEncoder(this.passwordEncoder());
+	public void configureAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+		authenticationManagerBuilder.userDetailsService(this.userDetailsService).passwordEncoder(passwordEncoder());
 	}
-	
+
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
-	
+
 	@Bean
-	public JwtAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception{
+	public JwtAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
 		return new JwtAuthenticationTokenFilter();
 	}
-	
+
 	@Override
-	protected void configure(HttpSecurity httpsecurity) throws Exception {
-		httpsecurity.csrf().disable().exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-		.antMatchers("/auth/**").permitAll().anyRequest().authenticated();
-		
-		httpsecurity.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
-		httpsecurity.headers().cacheControl();
+	protected void configure(HttpSecurity httpSecurity) throws Exception {
+		httpSecurity.csrf().disable().exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
+				.antMatchers("/auth/**", "/api/cadastrar-pj").permitAll()
+				.anyRequest().authenticated();
+		httpSecurity.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
+		httpSecurity.headers().cacheControl();
 	}
-	
 }

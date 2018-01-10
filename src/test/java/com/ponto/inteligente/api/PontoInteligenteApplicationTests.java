@@ -8,7 +8,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ActiveProfiles("teste")
+@ActiveProfiles("test")
 public class PontoInteligenteApplicationTests {
 
 	@Test

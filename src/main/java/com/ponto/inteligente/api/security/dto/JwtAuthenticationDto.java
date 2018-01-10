@@ -5,17 +5,15 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 public class JwtAuthenticationDto {
 
-	@NotEmpty(message = "Email não pode ser vazio")
-	@Email(message = "Email inválido")
 	private String email;
-	
-	@NotEmpty(message = "Senha não pode ser vazia")
 	private String senha;
-	
+
 	public JwtAuthenticationDto() {
-		//Não implementado
+		//Não comentado
 	}
 
+	@NotEmpty(message = "Email não pode ser vazio.")
+	@Email(message = "Email inválido.")
 	public String getEmail() {
 		return email;
 	}
@@ -24,6 +22,7 @@ public class JwtAuthenticationDto {
 		this.email = email;
 	}
 
+	@NotEmpty(message = "Senha não pode ser vazia.")
 	public String getSenha() {
 		return senha;
 	}
@@ -31,6 +30,11 @@ public class JwtAuthenticationDto {
 	public void setSenha(String senha) {
 		this.senha = senha;
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return "JwtAuthenticationRequestDto [email=" + email + ", senha=" + senha + "]";
+	}
+
 }
+
