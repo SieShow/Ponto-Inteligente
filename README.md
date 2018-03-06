@@ -14,7 +14,7 @@ A API RESTful de Ponto Inteligente contém as seguintes características:
 ### Como executar a aplicação
 Certifique-se de ter o Maven instalado e adicionado ao PATH de seu sistema operacional, assim como o Git.
 ```
-git clone https://github.com/m4rciosouza/ponto-inteligente-api.git
+git clone https://github.com/lgmagalhaes88/ponto-inteligente.git
 cd ponto-inteligente-api
 mvn spring-boot:run
 Acesse os endpoints através da url http://localhost:8080
